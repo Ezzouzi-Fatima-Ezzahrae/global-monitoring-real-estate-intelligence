@@ -24,3 +24,8 @@ Thumbs.db
 /postman/
 *.docx
 *.pdf
+
+# Confidential Orchid Island company records (land parcels, listings,
+# investment-opportunity dossiers) read from scanned documents -- kept
+# local-only even though the rest of knowledge_base/ is public.
+/knowledge_base/company/
