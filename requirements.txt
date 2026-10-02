@@ -52,3 +52,10 @@ Pillow>=10.0
 
 # Dev / testing
 pytest>=8.2
+
+# Required by FastAPI/Starlette to parse multipart form data -- the file
+# upload in POST /documents/upload (and the folder/multi-file upload queue
+# in the Documents page) sends the PDF as multipart/form-data, and FastAPI
+# raises at import time if this isn't installed. Easy to miss since
+# nothing else in this project uses file uploads.
+python-multipart>=0.0.9
