@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orchid Island — Global Intelligence</title>
+<link rel="icon" type="image/png" href="/static/favicon.png?v=4">
+<link rel="apple-touch-icon" href="/static/favicon-180.png?v=4">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/static/styles/tokens.css">
+<link rel="stylesheet" href="/static/styles/base.css">
+<link rel="stylesheet" href="/static/styles/components.css">
+<link rel="stylesheet" href="/static/styles/pages.css">
+</head>
+<body>
+
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="sidebar-scrim" id="sidebarScrim"></div>
+
+  <div class="main-col">
+    <header class="topheader" id="topheader"></header>
+    <main class="content" id="app"></main>
+  </div>
+</div>
+
+<div class="drawer-scrim" id="drawerScrim"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div class="drawer-title" id="drawerTitle"></div>
+    <button type="button" class="icon-btn" id="drawerCloseBtn" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+</aside>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<button type="button" id="chatFab" class="chat-fab" aria-label="Chat assistant" aria-expanded="false">
+  <span class="chat-fab-shine"></span>
+  <span class="chat-fab-eyes" aria-hidden="true"><span class="chat-fab-eye"></span><span class="chat-fab-eye"></span></span>
+</button>
+<div id="chatPanel" class="chat-panel" hidden>
+  <div class="chat-panel-head">
+    <span class="chat-panel-title" id="chatPanelTitle">Ask about this report</span>
+    <button type="button" id="chatCloseBtn" class="chat-close-btn" aria-label="Close chat">&times;</button>
+  </div>
+  <div id="chatMessages" class="chat-messages"></div>
+  <form id="chatForm" class="chat-input-row">
+    <input type="text" id="chatInput" class="chat-input" placeholder="Ask about an event…" autocomplete="off">
+    <button type="submit" id="chatSubmitBtn" class="chat-submit-btn">Submit</button>
+  </form>
+</div>
+
+<script src="/static/app/format.js"></script>
+<script src="/static/app/icons.js"></script>
+<script src="/static/app/i18n.js"></script>
+<script src="/static/app/api.js"></script>
+<script src="/static/app/data.js"></script>
+<script src="/static/app/ui.js"></script>
+<script src="/static/app/shell.js"></script>
+<script src="/static/app/router.js"></script>
+
+<script src="/static/app/pages/overview.js"></script>
+<script src="/static/app/pages/feed.js"></script>
+<script src="/static/app/pages/briefings.js"></script>
+<script src="/static/app/pages/market.js"></script>
+<script src="/static/app/pages/agents.js"></script>
+<script src="/static/app/pages/documents.js"></script>
+<script src="/static/app/pages/alerts.js"></script>
+<script src="/static/app/pages/reports.js"></script>
+<script src="/static/app/pages/search.js"></script>
+<script src="/static/app/pages/settings.js"></script>
+
+<script src="/static/app/chat.js"></script>
+<script src="/static/app/main.js"></script>
+</body>
+</html>

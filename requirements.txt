@@ -1,0 +1,54 @@
+# Core backend
+fastapi>=0.110
+uvicorn[standard]>=0.29
+
+# Multi-agent orchestration
+langgraph>=0.2
+
+# LLM provider client — the default provider (Gemini) calls the REST API
+# directly via httpx below, no extra SDK needed. Uncomment only if you
+# switch LLM_PROVIDER to "anthropic":
+# anthropic>=0.30
+
+# HTTP client (real-mode web_search / fetch_page / Gemini calls / YouTube
+# Data API calls)
+httpx>=0.28
+
+# YouTube video transcripts (2026-09-16 addition, src/tools/youtube_transcript.py)
+# -- reads a video's real public caption track. No API key of its own; the
+# YouTube search step itself (src/tools/youtube_search.py) uses the official
+# Data API via plain httpx above, no extra SDK needed there either.
+youtube-transcript-api>=0.6
+
+# Data validation / schemas / settings
+pydantic>=2.10
+pydantic-settings>=2.6
+
+# PDF export (2026-09-11 addition) -- renders a run's report as a real,
+# downloadable PDF (see src/services/pdf_export.py and GET /runs/{id}/pdf).
+# Pure-Python, no external binary (no wkhtmltopdf/pandoc install needed).
+reportlab>=4.0
+
+# PDF reading -- two real, separate uses: tests/test_pdf_export.py extracts
+# text back out of a generated PDF to verify pdf_export.py's own output,
+# and (2026-09-21 addition) src/tools/pdf_extraction.py uses this same
+# library as a real app dependency to read the text out of whatever PDF
+# Orchid Island uploads to the console (see POST /documents/upload). Pure-
+# Python, no external binary needed either way.
+pypdf>=4.0
+
+# OCR for scanned PDFs (2026-09-25 addition, src/tools/pdf_extraction.py) --
+# a real upload turned out to be a genuine scan with no text layer, which
+# this system could not previously read at all. PyMuPDF renders a scanned
+# page to an image (pure pip install, no external binary -- unlike
+# pdf2image, which would also need poppler installed separately).
+# pytesseract wraps the real Tesseract OCR engine, which IS a separate
+# program you must install yourself (it cannot be pip-installed) -- see
+# .env.example's OCR_* section and README.md for the Windows install
+# steps. Pillow is pytesseract's own image-handling dependency.
+pymupdf>=1.24
+pytesseract>=0.3.10
+Pillow>=10.0
+
+# Dev / testing
+pytest>=8.2

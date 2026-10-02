@@ -1,0 +1,56 @@
+/* Design tokens — Orchid Island Intelligence Platform.
+   Warm ivory / charcoal / deep brown, in the family of the existing brand
+   mark, but flattened into an enterprise register per Orchid Island's
+   2026-09-22 request: consistent small radius (no pill-on-everything),
+   subtle shadows, no decorative gradients, strong type hierarchy. */
+:root {
+  --bg: #F6F3EC;
+  --surface: #FFFFFF;
+  --surface-2: #EFE9DC;
+  --surface-3: #E5DDCB;
+  --ink: #211E17;
+  --ink-soft: #5A5344;
+  --ink-faint: #8B8271;
+  --line: rgba(33,30,23,0.11);
+  --line-strong: rgba(33,30,23,0.20);
+
+  --accent: #7C3315;
+  --accent-hover: #63280F;
+  --accent-soft: rgba(124,51,21,0.08);
+  --accent-line: rgba(124,51,21,0.30);
+  --accent-ink: #FFF9F3;
+
+  --gold: #A3823E;
+  --gold-soft: rgba(163,130,62,0.12);
+
+  --jewel: #1F5C52;
+  --jewel-soft: rgba(31,92,82,0.09);
+
+  --good: #3E6B44;
+  --good-soft: rgba(62,107,68,0.11);
+  --warn: #966F1E;
+  --warn-soft: rgba(150,111,30,0.12);
+  --bad: #8A3625;
+  --bad-soft: rgba(138,54,37,0.11);
+  --neutral: #83786A;
+  --neutral-soft: rgba(131,120,106,0.11);
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-lg: 10px;
+
+  --shadow-1: 0 1px 2px rgba(33,30,23,0.05);
+  --shadow-2: 0 2px 8px rgba(33,30,23,0.07), 0 1px 2px rgba(33,30,23,0.05);
+  --shadow-3: 0 8px 24px rgba(33,30,23,0.10), 0 2px 6px rgba(33,30,23,0.06);
+
+  --ease: cubic-bezier(0.2, 0.6, 0.3, 1);
+
+  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Consolas, monospace;
+
+  --sidebar-w: 248px;
+  --header-h: 64px;
+  --content-max: 1400px;
+}

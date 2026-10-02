@@ -1,0 +1,26 @@
+# Secrets - never commit real credentials
+.env
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+~$*.docx
+~$*.doc
+
+# This project's non-code material intentionally kept out of the public
+# repo: raw/scraped business data, generated run reports, local outputs,
+# and internal business documents. These stay on this computer only.
+/Orchid data/
+/Claude outputs/
+/reports/
+/_to_delete/
+/.postman/
+/postman/
+*.docx
+*.pdf
