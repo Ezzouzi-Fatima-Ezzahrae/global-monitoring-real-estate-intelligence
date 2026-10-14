@@ -155,9 +155,15 @@ def run_judge(events: list[Event], debate_log: DebateLog | None) -> list[ImpactA
         retrieved = knowledge_base.retrieve(_retrieval_query(event), top_k=_RAG_TOP_K)
         prompt = _build_prompt(event, status, reason, retrieved)
         try:
-            raw = llm_client.complete_json(
+            # 2026-10-14 fix: the Judge runs last, after the agents and the debate have
+            # spent a free-tier per-minute quota, and had no fallback, so a persistent
+            # 429 lost that event's assessment. Same Groq-on-429 fallback as
+            # summarize_event. The debate stage is deliberately not given this: its two
+            # voices must stay two different providers.
+            raw = llm_client.complete_json_with_groq_fallback(
                 provider=settings.llm_provider, model=settings.llm_model,
                 api_key=settings.llm_api_key, prompt=prompt,
+                label="Judge Stage",
             )
             confidence = float(raw["confidence"])
             if is_contested and confidence > CONTESTED_CONFIDENCE_CEILING:
