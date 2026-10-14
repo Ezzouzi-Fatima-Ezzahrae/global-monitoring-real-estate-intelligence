@@ -3,6 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+import httpx
 import pytest
 
 from src.agents import run_judge
@@ -259,3 +260,30 @@ def test_no_knowledge_base_match_is_stated_honestly_in_the_prompt(monkeypatch):
 
     assert "none of the curated knowledge base matched" in captured["prompt"]
     assert assessments[0].supporting_evidence == ["e1"]
+
+# 2026-10-14 addition: a persistent Gemini 429 must no longer lose the Judge's
+# assessment when a Groq key is configured; the same call is made once more on
+# Groq. Uses the same instance-level fake as the tests above.
+def test_judge_falls_back_to_groq_on_a_persistent_429(monkeypatch):
+    monkeypatch.setattr(settings, "groq_api_key", "gsk-test")
+    providers = []
+
+    def fake_complete_json(*, provider, model, api_key, prompt):
+        providers.append(provider)
+        if provider != "groq":
+            req = httpx.Request("POST", "http://x")
+            raise httpx.HTTPStatusError("429", request=req, response=httpx.Response(429, request=req))
+        return {
+            "sector_or_market_affected": "prime residential demand",
+            "direction": "negative",
+            "magnitude": "medium",
+            "confidence": 0.6,
+            "time_horizon": "short_term",
+            "recommended_action": "Monitor",
+            "rationale": "Test.",
+        }
+
+    monkeypatch.setattr(llm_client_instance, "complete_json", fake_complete_json)
+    assessments = run_judge([_event("e1")], None)
+    assert len(assessments) == 1
+    assert providers == [settings.llm_provider, "groq"]

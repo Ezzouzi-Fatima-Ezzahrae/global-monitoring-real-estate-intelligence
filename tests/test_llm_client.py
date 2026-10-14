@@ -325,3 +325,74 @@ def test_parse_json_response_strips_markdown_fence():
     fenced = '```json\n{"summary": "ok", "confidence": 0.5}\n```'
     parsed = LLMClient._parse_json_response(fenced)
     assert parsed == {"summary": "ok", "confidence": 0.5}
+
+# 2026-10-14 addition: complete_json_with_groq_fallback() mirrors the Groq-on-
+# 429 fallback summarize_event already has, for stages that call
+# complete_json() directly (the Judge). The cases below pin what must NOT
+# fall back as strongly as what must.
+def _status_error(status: int) -> httpx.HTTPStatusError:
+    req = httpx.Request("POST", "http://x")
+    return httpx.HTTPStatusError(str(status), request=req, response=httpx.Response(status, request=req))
+
+
+def _client_with(monkeypatch, fail_with=None):
+    client = LLMClient()
+    calls = []
+
+    def fake_complete_json(*, provider, model, api_key, prompt, **kwargs):
+        calls.append((provider, kwargs))
+        if provider != "groq" and fail_with is not None:
+            raise _status_error(fail_with)
+        return {"ok": True}
+
+    monkeypatch.setattr(client, "complete_json", fake_complete_json)
+    return client, calls
+
+
+def test_fallback_switches_to_groq_on_a_persistent_429(monkeypatch):
+    monkeypatch.setattr(settings, "groq_api_key", "gsk-test")
+    client, calls = _client_with(monkeypatch, fail_with=429)
+    result = client.complete_json_with_groq_fallback(provider="gemini", model="m", api_key="k", prompt="p")
+    assert result == {"ok": True}
+    assert [c[0] for c in calls] == ["gemini", "groq"]
+
+
+def test_fallback_does_not_mask_a_non_429_error(monkeypatch):
+    monkeypatch.setattr(settings, "groq_api_key", "gsk-test")
+    client, calls = _client_with(monkeypatch, fail_with=401)
+    with pytest.raises(httpx.HTTPStatusError):
+        client.complete_json_with_groq_fallback(provider="gemini", model="m", api_key="k", prompt="p")
+    assert [c[0] for c in calls] == ["gemini"]
+
+
+def test_fallback_is_skipped_without_a_groq_key(monkeypatch):
+    monkeypatch.setattr(settings, "groq_api_key", "")
+    client, calls = _client_with(monkeypatch, fail_with=429)
+    with pytest.raises(httpx.HTTPStatusError):
+        client.complete_json_with_groq_fallback(provider="gemini", model="m", api_key="k", prompt="p")
+    assert [c[0] for c in calls] == ["gemini"]
+
+
+def test_fallback_is_skipped_when_the_primary_provider_is_already_groq(monkeypatch):
+    monkeypatch.setattr(settings, "groq_api_key", "gsk-test")
+    client = LLMClient()
+    calls = []
+
+    def always_429(*, provider, model, api_key, prompt, **kwargs):
+        calls.append(provider)
+        raise _status_error(429)
+
+    monkeypatch.setattr(client, "complete_json", always_429)
+    with pytest.raises(httpx.HTTPStatusError):
+        client.complete_json_with_groq_fallback(provider="groq", model="m", api_key="k", prompt="p")
+    assert calls == ["groq"]
+
+
+def test_fallback_only_forwards_optional_arguments_that_were_set(monkeypatch):
+    client, calls = _client_with(monkeypatch)
+    client.complete_json_with_groq_fallback(provider="gemini", model="m", api_key="k", prompt="p")
+    client.complete_json_with_groq_fallback(
+        provider="gemini", model="m", api_key="k", prompt="p", timeout_seconds=45, max_tokens=4000
+    )
+    assert calls[0][1] == {}
+    assert calls[1][1] == {"timeout_seconds": 45, "max_tokens": 4000}

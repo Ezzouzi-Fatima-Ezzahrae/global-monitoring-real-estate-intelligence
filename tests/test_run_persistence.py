@@ -33,10 +33,18 @@ class _FakeStep:
         return {"agent": self.agent, "status": self.status, "error": self.error, "duration_ms": self.duration_ms}
 
 
+# 2026-10-13 fix: serialize_run() sorts events by priority_rank (a field
+# added to the real Event on 2026-09-21, see src/models/event.py), but this
+# stand-in never got the attribute, so every test that goes through
+# serialize_run()/persist_run() failed with AttributeError. The default is
+# None, the same as the real Event: an event has no rank until Judge has
+# assessed it, and a fake should not invent one either.
+
 class _FakeEvent:
-    def __init__(self, event_id, headline):
+    def __init__(self, event_id, headline,priority_rank=None):
         self.event_id = event_id
         self.headline = headline
+        self.priority_rank = priority_rank
 
     def model_dump(self, mode="json"):
         return {"id": self.event_id, "headline": self.headline}
@@ -208,3 +216,21 @@ def test_save_event_note_raises_for_an_event_not_in_that_run(tmp_path):
     run_id, _run, _json_path = run_persistence.persist_run(_full_state(), runs_dir=tmp_path)
     with pytest.raises(ValueError):
         run_persistence.save_event_note(run_id, "not-a-real-event-id", "text", runs_dir=tmp_path)
+
+
+# 2026-10-13 addition: serialize_run() orders events by priority_rank and
+# pushes events with no rank (None) to the end using float("inf"). Nothing
+# tested that ordering before, because no fake event had a rank at all. This
+# covers it: ranked events first in rank order, unranked last, none dropped.
+
+def test_serialize_run_orders_events_by_priority_rank_with_unranked_last():
+    state = _FakeState(
+        events=[
+            _FakeEvent("unranked", "No rank yet"),
+            _FakeEvent("second", "Second", priority_rank=2),
+            _FakeEvent("first", "First", priority_rank=1),
+        ],
+        report=_FakeReport("3 events."),
+    )
+    run = run_persistence.serialize_run("run-order", state)
+    assert [e["id"] for e in run["events"]] == ["first", "second", "unranked"]
