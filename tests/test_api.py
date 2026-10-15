@@ -23,13 +23,50 @@ def client(tmp_path, monkeypatch):
     return TestClient(api_main.app)
 
 
+# 2026-10-13 fix: the console is no longer one self-contained HTML page. The
+# HTML is now a thin shell (title "Orchid Island - Global Intelligence") that
+# loads separate JS modules from /static/app/, so "Digest Console",
+# "/run-digest" and "/static/logo.png" are no longer present in the HTML
+# itself and this test failed on its first stale assertion. It now checks the
+# shell; the next two tests check that the JS modules still call the real
+# endpoint and still reference the real logo, so nothing it used to cover is
+# dropped.
+
 def test_index_serves_the_local_gui(client):
     resp = client.get("/")
     assert resp.status_code == 200
     assert "text/html" in resp.headers["content-type"]
-    assert "Digest Console" in resp.text
-    assert "/run-digest" in resp.text  # the page actually calls the real endpoint
-    assert "/static/logo.png" in resp.text  # the header logo it references must be a real, servable path
+    assert "Global Intelligence" in resp.text
+    # The console is now a thin HTML shell plus separate JS modules: the
+    # HTML must load the scripts that build the page, and the favicon it
+    # references must be a real path (served-for-real is checked below).
+    assert "/static/app/api.js" in resp.text
+    assert "/static/app/shell.js" in resp.text
+    assert "/static/favicon.png" in resp.text
+
+# 2026-10-13 addition: the page used to call POST /run-digest from inline
+# JavaScript, so the old test could look for it in the HTML. That call now
+# lives in static/app/api.js (runDigest), so it is checked there.
+
+def test_console_js_calls_the_real_run_digest_endpoint(client):
+    # The endpoint call moved from the HTML into the JS modules.
+    resp = client.get("/static/app/api.js")
+    assert resp.status_code == 200
+    assert "/run-digest" in resp.text
+
+# 2026-10-13 addition: the header logo is now built by static/app/shell.js
+# instead of being written in the HTML. Confirms the JS still points at
+# /static/logo.png and that this exact path is really served (the PNG
+# content-type check itself stays in test_static_logo_and_favicon_assets_
+# are_served just below).
+
+def test_console_header_logo_path_is_a_real_servable_file(client):
+    # The header logo is now built by shell.js: confirm it still points at
+    # /static/logo.png, and that this exact path is actually served.
+    shell = client.get("/static/app/shell.js")
+    assert shell.status_code == 200
+    assert "/static/logo.png" in shell.text
+    assert client.get("/static/logo.png").status_code == 200
 
 
 def test_static_logo_and_favicon_assets_are_served(client):
