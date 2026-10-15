@@ -175,3 +175,20 @@ def test_fetch_transcript_returns_none_on_empty_transcript(monkeypatch):
 
     monkeypatch.setattr(youtube_transcript_api, "YouTubeTranscriptApi", FakeApi)
     assert fetch_transcript("empty-video") is None
+
+# 2026-10-15 addition: when YouTube answers with a body that is not JSON (an HTML
+# 5xx page, for example), youtube_search falls back to a generic message. That
+# message must not be str(exc): httpx puts the full request URL, API key included,
+# in that text, and it is logged.
+def test_youtube_search_error_log_never_contains_the_api_key(monkeypatch, caplog):
+    monkeypatch.setattr(settings, "youtube_api_key", "SECRET123")
+
+    def fake_get(url, params=None, timeout=None):
+        request = httpx.Request("GET", url, params=params)
+        return httpx.Response(503, request=request, text="<html>upstream down</html>")
+
+    monkeypatch.setattr(httpx, "get", fake_get)
+    with caplog.at_level("ERROR"):
+        assert youtube_search("marrakech real estate") == []
+    assert "SECRET123" not in caplog.text
+    assert "HTTP 503" in caplog.text
