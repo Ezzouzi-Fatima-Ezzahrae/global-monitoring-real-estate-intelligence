@@ -37,6 +37,7 @@ def test_complete_json_calls_gemini_with_correct_request_shape(monkeypatch):
     def fake_post(self, url, params=None, headers=None, json=None):
         captured["url"] = url
         captured["params"] = params
+        captured["headers"] = headers #15/10/2026 fix 
         captured["json"] = json
         return httpx.Response(
             200,
@@ -49,7 +50,10 @@ def test_complete_json_calls_gemini_with_correct_request_shape(monkeypatch):
     result = client.complete_json(provider="gemini", model="gemini-3.6-flash", api_key="k", prompt="hello")
 
     assert result == {"summary": "ok"}
-    assert captured["params"] == {"key": "k"}
+    # 2026-10-15 fix: the Gemini key now travels in the x-goog-api-key header,
+    # never in the URL query string (see _call_gemini_raw).
+    assert captured["headers"] == {"x-goog-api-key": "k"}
+    assert not captured["params"]
     assert captured["url"] == f"{GEMINI_API_BASE}/gemini-3.6-flash:generateContent"
 
 
@@ -396,3 +400,24 @@ def test_fallback_only_forwards_optional_arguments_that_were_set(monkeypatch):
     )
     assert calls[0][1] == {}
     assert calls[1][1] == {"timeout_seconds": 45, "max_tokens": 4000}
+
+# 2026-10-14 addition: pins the key-leak fix. httpx builds the error text from
+# the real request, so this goes through a MockTransport instead of faking the
+# response: a 401 is not retried, so the test is instant.
+def test_a_gemini_http_error_never_contains_the_api_key(monkeypatch):
+    real_client = httpx.Client
+    seen = {}
+
+    def handler(request):
+        seen["url"] = str(request.url)
+        seen["header"] = request.headers.get("x-goog-api-key")
+        return httpx.Response(401, request=request, json={"error": "bad key"})
+
+    monkeypatch.setattr(
+        httpx, "Client", lambda **kw: real_client(transport=httpx.MockTransport(handler), **kw)
+    )
+    with pytest.raises(httpx.HTTPStatusError) as excinfo:
+        LLMClient().complete_json(provider="gemini", model="m", api_key="SECRET123", prompt="p")
+    assert "SECRET123" not in str(excinfo.value)
+    assert "SECRET123" not in seen["url"]
+    assert seen["header"] == "SECRET123"

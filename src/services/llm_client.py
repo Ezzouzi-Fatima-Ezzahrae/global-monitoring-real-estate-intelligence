@@ -276,7 +276,13 @@ class LLMClient:
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"temperature": 0.2, "maxOutputTokens": max_tokens or 1500},
         }
-        data = self._post_with_retry(url, params={"key": api_key}, json_body=payload, timeout_seconds=timeout_seconds)
+        # 2026-10-14 fix: the key used to travel in the URL query string, and httpx puts
+        # the full URL in the text of an HTTPStatusError, so a 429/5xx exposed the real
+        # key wherever that error was logged. Google's reference asks for the
+        # x-goog-api-key header instead, which never appears in the URL.
+        data = self._post_with_retry(
+            url, headers={"x-goog-api-key": api_key}, json_body=payload, timeout_seconds=timeout_seconds,
+        )
         candidates = data.get("candidates") or []
         if not candidates:
             raise ValueError(f"Gemini returned no candidates (finishReason on prompt feedback: {data.get('promptFeedback')})")
