@@ -122,7 +122,11 @@ def youtube_search(
         # far more useful than the bare "403 Forbidden" the exception's
         # string form gives on its own. Best-effort: if the body isn't
         # JSON (or doesn't have this shape) fall back to the plain str().
-        detail = str(exc)
+        
+        # 2026-10-15 fix: never str(exc) here. httpx puts the full request URL, API key
+        # included, in an HTTPStatusError's text, and this value is logged below when the
+        # response body cannot be parsed (for example an HTML 5xx page).
+        detail = f"HTTP {exc.response.status_code}"
         try:
             error_body = exc.response.json().get("error", {})
             reason = (error_body.get("errors") or [{}])[0].get("reason")
