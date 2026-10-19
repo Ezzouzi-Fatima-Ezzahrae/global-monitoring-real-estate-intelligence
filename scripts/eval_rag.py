@@ -151,28 +151,42 @@ def rrf(rankings: list[list[str]], k: int = 60) -> list[str]:
 # --------------------------------------------------------------------------
 # Command line
 # --------------------------------------------------------------------------
-def print_report(name: str, rows: list[dict], k: int) -> dict:
+#19/10/2026
+def format_report(name: str, rows: list[dict], k: int) -> str:
+    """Builds the report as text, so it can be printed AND written to a UTF-8
+    file by Python itself (see main): shell redirection on Windows re-encodes
+    the output and breaks on Arabic queries."""
     s = summarize(rows)
-    print(f"\n=== {name} (k={k}) ===")
+    fmt = lambda v: "n/a" if v is None else f"{v:.2f}"
+    lines = [f"=== {name} (k={k}) ==="]
     for r in rows:
         if not r["ok"]:
-            print(f"MISS [{r['kind']}] {r['id']}: {r['query'][:60]!r}")
-            print(f"     expected={r['expected']} got={r['citations']}")
-    fmt = lambda v: "n/a" if v is None else f"{v:.2f}"
-    print(f"recall@{k}={fmt(s['recall'])}  MRR={fmt(s['mrr'])}  abstention={fmt(s['abstention'])}"
-          f"  (positives={s['n_positive']}, negatives={s['n_negative']})")
+            lines.append(f"MISS [{r['kind']}] {r['id']}: {r['query'][:60]!r}")
+            lines.append(f"     expected={r['expected']} got={r['citations']}")
+    lines.append(
+        f"recall@{k}={fmt(s['recall'])}  MRR={fmt(s['mrr'])}  abstention={fmt(s['abstention'])}"
+        f"  (positives={s['n_positive']}, negatives={s['n_negative']})"
+    )
     for kind, value in s["recall_by_kind"].items():
-        print(f"  recall by kind: {kind:<11} {value:.2f}")
-    return s
+        lines.append(f"  recall by kind: {kind:<11} {value:.2f}")
+    return "\n".join(lines)
 
 
 def main() -> None:
+    import sys
+
     from src.services import knowledge_base  # imported here so the pure functions need no project setup
+
+    # A redirected stdout on Windows defaults to cp1252, which cannot encode the
+    # Arabic queries (or some characters in citations): force UTF-8.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--golden", type=Path, default=GOLDEN_SET_DEFAULT)
     parser.add_argument("--k", type=int, default=3)
     parser.add_argument("--variant", choices=["baseline", "alias"], default="baseline")
+    parser.add_argument("--out", type=Path, default=None, help="also write the report to this UTF-8 file")
     args = parser.parse_args()
 
     cases = load_cases(args.golden)
@@ -180,7 +194,13 @@ def main() -> None:
         retrieve = lambda q, k: knowledge_base.retrieve(expand_query(q), top_k=k)
     else:
         retrieve = lambda q, k: knowledge_base.retrieve(q, top_k=k)
-    print_report(args.variant, evaluate(cases, retrieve, args.k), args.k)
+
+    report = format_report(args.variant, evaluate(cases, retrieve, args.k), args.k)
+    print(report)
+    if args.out:
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(report + "\n", encoding="utf-8")
+
 
 
 if __name__ == "__main__":

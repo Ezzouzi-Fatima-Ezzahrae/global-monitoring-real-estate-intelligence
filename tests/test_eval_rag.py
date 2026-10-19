@@ -7,7 +7,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.eval_rag import (evaluate, expand_query, first_hit_rank, load_cases, normalize, rrf, summarize)
+from scripts.eval_rag import (evaluate, expand_query, first_hit_rank, format_report, load_cases, normalize, rrf, summarize)
 
 
 def _fake_retrieve(table):
@@ -93,3 +93,15 @@ def test_rrf_promotes_documents_ranked_well_by_either_method():
     fused = rrf([["a", "b", "c"], ["c", "d", "a"]])
     assert fused[0] == "a" and set(fused) == {"a", "b", "c", "d"}
     assert fused.index("c") < fused.index("b")
+
+def test_format_report_lists_misses_and_survives_arabic_text():
+    cases = [
+        {"id": "c-05", "kind": "cross_lang", "query": "سعر الفائدة الرئيسي لبنك المغرب", "expected": ["macro_morocco"]},
+        {"id": "d-02", "kind": "direct", "query": "interest rate", "expected": ["macro_morocco"]},
+    ]
+    retrieve = _fake_retrieve({"interest rate": ["macro_morocco.md#Rates"]})
+    text = format_report("baseline", evaluate(cases, retrieve, k=3), 3)
+    assert "MISS [cross_lang] c-05" in text
+    assert "d-02" not in text                      # only misses are listed
+    assert "recall@3=0.50" in text
+    text.encode("utf-8")                           # must be writable as UTF-8
