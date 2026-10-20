@@ -1,0 +1,13 @@
+=== baseline (k=3) ===
+MISS [cross_lang] c-01: 'arrivées de touristes au Maroc'
+     expected=['tourism_stats'] got=[]
+MISS [cross_lang] c-02: 'taux directeur de la banque centrale'
+     expected=['macro_morocco'] got=[]
+MISS [cross_lang] c-05: 'سعر الفائدة الرئيسي لبنك المغرب'
+     expected=['macro_morocco'] got=[]
+MISS [cross_lang] c-06: 'عدد السياح الوافدين إلى المغرب'
+     expected=['tourism_stats'] got=[]
+recall@3=0.73  MRR=0.70  abstention=1.00  (positives=15, negatives=4)
+  recall by kind: cross_lang  0.33
+  recall by kind: direct      1.00
+  recall by kind: synonym     1.00

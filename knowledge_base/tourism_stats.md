@@ -1,5 +1,6 @@
 # Morocco Tourism Statistics (2026)
 
+## Arrivals and growth, January-August 2026
 > Real, sourced content collected via live web search on 2026-09-09.
 
 - **14.1 million** tourist arrivals in Morocco, January–August 2026.
