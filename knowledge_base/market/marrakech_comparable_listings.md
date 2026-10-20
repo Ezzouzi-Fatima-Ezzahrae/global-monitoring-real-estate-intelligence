@@ -1,5 +1,11 @@
 # Marrakech comparable listings: aggregated real market data
 
+
+> Provenance (kept for the team, not indexed): `Orchid data/immobilier_maroc_Price/` and
+> `Orchid data/DataScrapingAvito/`.
+
+## Data source, method and limitations
+
 Source: `Orchid data/immobilier_maroc_Price/` and `Orchid data/DataScrapingAvito/`, real listings
 scraped from four Moroccan property platforms (Agenz, Mubawab, Avito, Yakeey) across the
 Marrakech-Safi region. Processed and aggregated on 2026-09-15 from 119,770 individual listing
