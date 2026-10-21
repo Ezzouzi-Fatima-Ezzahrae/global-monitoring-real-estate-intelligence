@@ -1,0 +1,17 @@
+=== baseline (k=3) ===
+MISS [direct] d-01: 'tourist arrivals to Morocco January to August 2026'
+     expected=['tourism_stats'] got=['real_estate_market_snapshot.md#Demoted — original pass, kept for the credibility contrast', 'historical_precedents.md#How recovery unfolded', 'macro_morocco.md#Growth and Inflation Forecasts']
+MISS [synonym] s-01: 'number of visitors entering the kingdom'
+     expected=['tourism_stats'] got=['macro_morocco.md#Why this matters for the Judge / RAG retrieval', 'market/marrakech_comparable_listings.md#Named comparables: Palmeraie luxury villas (Vente), full detail']
+MISS [cross_lang] c-01: 'arrivées de touristes au Maroc'
+     expected=['tourism_stats'] got=[]
+MISS [cross_lang] c-02: 'taux directeur de la banque centrale'
+     expected=['macro_morocco'] got=[]
+MISS [cross_lang] c-05: 'سعر الفائدة الرئيسي لبنك المغرب'
+     expected=['macro_morocco'] got=[]
+MISS [cross_lang] c-06: 'عدد السياح الوافدين إلى المغرب'
+     expected=['tourism_stats'] got=[]
+recall@3=0.60  MRR=0.57  abstention=1.00  (positives=15, negatives=4)
+  recall by kind: cross_lang  0.33
+  recall by kind: direct      0.80
+  recall by kind: synonym     0.75

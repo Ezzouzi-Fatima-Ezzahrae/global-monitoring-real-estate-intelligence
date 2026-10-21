@@ -1,0 +1,146 @@
+[
+    {
+        "id": "d-01",
+        "kind": "direct",
+        "query": "tourist arrivals to Morocco January to August 2026",
+        "expected": [
+            "tourism_stats"
+        ]
+    },
+    {
+        "id": "d-02",
+        "kind": "direct",
+        "query": "Bank Al-Maghrib key interest rate decision",
+        "expected": [
+            "macro_morocco"
+        ]
+    },
+    {
+        "id": "d-03",
+        "kind": "direct",
+        "query": "COVID-19 impact on Moroccan real estate transactions",
+        "expected": [
+            "historical_precedents"
+        ]
+    },
+    {
+        "id": "d-04",
+        "kind": "direct",
+        "query": "prime residential price per square metre in Marrakech",
+        "expected": [
+            "real_estate_market_snapshot"
+        ]
+    },
+    {
+        "id": "d-05",
+        "kind": "direct",
+        "query": "Morocco hotel pipeline rooms under construction",
+        "expected": [
+            "real_estate_market_snapshot"
+        ]
+    },
+    {
+        "id": "s-01",
+        "kind": "synonym",
+        "query": "number of visitors entering the kingdom",
+        "expected": [
+            "tourism_stats"
+        ]
+    },
+    {
+        "id": "s-02",
+        "kind": "synonym",
+        "query": "central bank policy rate",
+        "expected": [
+            "macro_morocco"
+        ]
+    },
+    {
+        "id": "s-03",
+        "kind": "synonym",
+        "query": "housing demand after the pandemic",
+        "expected": [
+            "historical_precedents"
+        ]
+    },
+    {
+        "id": "s-04",
+        "kind": "synonym",
+        "query": "short-term rental returns for investors",
+        "expected": [
+            "real_estate_market_snapshot"
+        ]
+    },
+    {
+        "id": "c-01",
+        "kind": "cross_lang",
+        "query": "arrivées de touristes au Maroc",
+        "expected": [
+            "tourism_stats"
+        ]
+    },
+    {
+        "id": "c-02",
+        "kind": "cross_lang",
+        "query": "taux directeur de la banque centrale",
+        "expected": [
+            "macro_morocco"
+        ]
+    },
+    {
+        "id": "c-03",
+        "kind": "cross_lang",
+        "query": "effondrement des transactions immobilières pendant le COVID",
+        "expected": [
+            "historical_precedents"
+        ]
+    },
+    {
+        "id": "c-04",
+        "kind": "cross_lang",
+        "query": "prix de l'immobilier de luxe à Marrakech",
+        "expected": [
+            "real_estate_market_snapshot"
+        ]
+    },
+    {
+        "id": "c-05",
+        "kind": "cross_lang",
+        "query": "سعر الفائدة الرئيسي لبنك المغرب",
+        "expected": [
+            "macro_morocco"
+        ]
+    },
+    {
+        "id": "c-06",
+        "kind": "cross_lang",
+        "query": "عدد السياح الوافدين إلى المغرب",
+        "expected": [
+            "tourism_stats"
+        ]
+    },
+    {
+        "id": "n-01",
+        "kind": "negative",
+        "query": "volcanic eruption Iceland",
+        "expected": []
+    },
+    {
+        "id": "n-02",
+        "kind": "negative",
+        "query": "football transfer window Premier League",
+        "expected": []
+    },
+    {
+        "id": "n-03",
+        "kind": "negative",
+        "query": "quantum computing chip fabrication Taiwan",
+        "expected": []
+    },
+    {
+        "id": "n-04",
+        "kind": "negative",
+        "query": "Nobel prize literature ceremony",
+        "expected": []
+    }
+]
