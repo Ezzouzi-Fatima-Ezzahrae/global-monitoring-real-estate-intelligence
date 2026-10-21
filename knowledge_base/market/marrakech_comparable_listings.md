@@ -6,7 +6,7 @@
 
 ## Data source, method and limitations
 
-Source: `Orchid data/immobilier_maroc_Price/` and `Orchid data/DataScrapingAvito/`, real listings
+Source: real listings
 scraped from four Moroccan property platforms (Agenz, Mubawab, Avito, Yakeey) across the
 Marrakech-Safi region. Processed and aggregated on 2026-09-15 from 119,770 individual listing
 rows across 258 source files (241 files in the wider folder could not be parsed automatically,
