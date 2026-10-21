@@ -7,7 +7,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from scripts.eval_rag import (evaluate, expand_query, first_hit_rank, format_report, load_cases, normalize, rrf, summarize)
+from scripts.eval_rag import (compare_table, evaluate, expand_query, first_hit_rank, format_report, load_cases, normalize, rrf, run_all, summarize)
 
 
 def _fake_retrieve(table):
@@ -45,6 +45,8 @@ def test_metrics_on_a_known_table():
     assert s["mrr"] == pytest.approx((1 + 0.5 + 0) / 3)
     assert s["abstention"] == pytest.approx(0.5)
     assert s["recall_by_kind"] == {"cross_lang": 0.0, "direct": 1.0}
+    #21/10/2026
+    assert s["false_hits"] == 1          # q3: a miss that still returned unrelated chunks
 
 
 def test_k_limits_which_results_count():
@@ -105,3 +107,27 @@ def test_format_report_lists_misses_and_survives_arabic_text():
     assert "d-02" not in text                      # only misses are listed
     assert "recall@3=0.50" in text
     text.encode("utf-8")                           # must be writable as UTF-8
+
+#21/10/2026
+def test_false_hits_count_only_misses_that_returned_something():
+    cases = [
+        {"id": "a", "kind": "direct", "query": "qa", "expected": ["x"]},   # miss, silent
+        {"id": "b", "kind": "direct", "query": "qb", "expected": ["x"]},   # miss, unrelated chunk
+        {"id": "c", "kind": "direct", "query": "qc", "expected": ["x"]},   # hit
+    ]
+    retrieve = _fake_retrieve({"qb": ["other.md#1"], "qc": ["x.md#1"]})
+    s = summarize(evaluate(cases, retrieve, k=3))
+    assert s["false_hits"] == 1 and s["recall"] == pytest.approx(1 / 3)
+
+
+def test_run_all_and_compare_table_cover_every_variant_on_every_set():
+    sets = {"golden": CASES[:1], "held-out": CASES[1:2]}
+    good = _fake_retrieve({"q1": ["tourism_stats#1"], "q2": ["macro_morocco#1"]})
+    silent = _fake_retrieve({})
+    runs = run_all(sets, {"good": good, "silent": silent}, k=3)
+    assert [label for label, _ in runs] == [
+        "good / golden", "silent / golden", "good / held-out", "silent / held-out",
+    ]
+    table = compare_table([(label, summarize(rows)) for label, rows in runs])
+    assert table.count("\n") == 5                      # header, separator, 4 rows
+    assert "| good / golden | 1.00 |" in table and "| silent / held-out | 0.00 |" in table

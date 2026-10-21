@@ -81,6 +81,10 @@ def summarize(rows: list[dict]) -> dict:
         "mrr": sum(1 / r["rank"] for r in positives if r["rank"]) / len(positives) if positives else None,
         "abstention": sum(r["ok"] for r in negatives) / len(negatives) if negatives else None,
         "recall_by_kind": {},
+        #21/10/2026
+        # A miss that still returned something is worse for the Judge than a silent
+        # one: it reads the unrelated chunk as if it were context.
+        "false_hits": sum(1 for r in positives if not r["ok"] and r["citations"]),
     }
     for kind in sorted({r["kind"] for r in positives}):
         subset = [r for r in positives if r["kind"] == kind]
@@ -151,25 +155,52 @@ def rrf(rankings: list[list[str]], k: int = 60) -> list[str]:
 # --------------------------------------------------------------------------
 # Command line
 # --------------------------------------------------------------------------
-#19/10/2026
+#21/10/2026
+def _fmt(value: float | None) -> str:
+    return "n/a" if value is None else f"{value:.2f}"
+
+
 def format_report(name: str, rows: list[dict], k: int) -> str:
     """Builds the report as text, so it can be printed AND written to a UTF-8
     file by Python itself (see main): shell redirection on Windows re-encodes
     the output and breaks on Arabic queries."""
     s = summarize(rows)
-    fmt = lambda v: "n/a" if v is None else f"{v:.2f}"
     lines = [f"=== {name} (k={k}) ==="]
     for r in rows:
         if not r["ok"]:
             lines.append(f"MISS [{r['kind']}] {r['id']}: {r['query'][:60]!r}")
             lines.append(f"     expected={r['expected']} got={r['citations']}")
     lines.append(
-        f"recall@{k}={fmt(s['recall'])}  MRR={fmt(s['mrr'])}  abstention={fmt(s['abstention'])}"
+        f"recall@{k}={_fmt(s['recall'])}  MRR={_fmt(s['mrr'])}  abstention={_fmt(s['abstention'])}"
         f"  (positives={s['n_positive']}, negatives={s['n_negative']})"
     )
+    lines.append(f"  false hits: {s['false_hits']} (a miss that returned an unrelated chunk instead of nothing)")
     for kind, value in s["recall_by_kind"].items():
         lines.append(f"  recall by kind: {kind:<11} {value:.2f}")
     return "\n".join(lines)
+
+
+def compare_table(results: list[tuple[str, dict]]) -> str:
+    """One markdown row per run: [(label, summary), ...]."""
+    lines = ["| Run | recall@k | MRR | abstention | false hits |", "|---|---|---|---|---|"]
+    for label, s in results:
+        lines.append(
+            f"| {label} | {_fmt(s['recall'])} | {_fmt(s['mrr'])} | {_fmt(s['abstention'])} | {s['false_hits']} |"
+        )
+    return "\n".join(lines)
+
+
+def run_all(golden_sets: dict[str, list[dict]], variants: dict[str, Callable], k: int) -> list[tuple[str, list[dict]]]:
+    """Every variant on every golden set, so a comparison is one command and
+    no result file is produced at the wrong moment."""
+    runs = []
+    for set_name, cases in golden_sets.items():
+        for variant_name, retrieve in variants.items():
+            runs.append((f"{variant_name} / {set_name}", evaluate(cases, retrieve, k)))
+    return runs
+
+
+HELDOUT_DEFAULT = Path(__file__).resolve().parents[1] / "eval" / "rag_golden_set_heldout.json"
 
 
 def main() -> None:
@@ -186,21 +217,29 @@ def main() -> None:
     parser.add_argument("--golden", type=Path, default=GOLDEN_SET_DEFAULT)
     parser.add_argument("--k", type=int, default=3)
     parser.add_argument("--variant", choices=["baseline", "alias"], default="baseline")
+    parser.add_argument("--all", action="store_true", help="baseline and alias, on the golden set and the held-out set")
     parser.add_argument("--out", type=Path, default=None, help="also write the report to this UTF-8 file")
     args = parser.parse_args()
 
-    cases = load_cases(args.golden)
-    if args.variant == "alias":
-        retrieve = lambda q, k: knowledge_base.retrieve(expand_query(q), top_k=k)
-    else:
-        retrieve = lambda q, k: knowledge_base.retrieve(q, top_k=k)
+    plain = lambda q, k: knowledge_base.retrieve(q, top_k=k)
+    expanded = lambda q, k: knowledge_base.retrieve(expand_query(q), top_k=k)
 
-    report = format_report(args.variant, evaluate(cases, retrieve, args.k), args.k)
+    if args.all:
+        golden_sets = {"golden": load_cases(args.golden)}
+        if HELDOUT_DEFAULT.exists():
+            golden_sets["held-out"] = load_cases(HELDOUT_DEFAULT)
+        runs = run_all(golden_sets, {"baseline": plain, "alias": expanded}, args.k)
+        parts = [format_report(label, rows, args.k) for label, rows in runs]
+        parts.append(compare_table([(label, summarize(rows)) for label, rows in runs]))
+        report = "\n\n".join(parts)
+    else:
+        retrieve = expanded if args.variant == "alias" else plain
+        report = format_report(args.variant, evaluate(load_cases(args.golden), retrieve, args.k), args.k)
+
     print(report)
     if args.out:
         args.out.parent.mkdir(parents=True, exist_ok=True)
         args.out.write_text(report + "\n", encoding="utf-8")
-
 
 
 if __name__ == "__main__":
