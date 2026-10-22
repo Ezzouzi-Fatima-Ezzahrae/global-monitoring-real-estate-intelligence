@@ -1,0 +1,70 @@
+[
+    {
+        "id": "e-01",
+        "kind": "direct",
+        "query": "median price per square metre for riads in Marrakech",
+        "expected": [
+            "marrakech_comparable_listings"
+        ]
+    },
+    {
+        "id": "e-02",
+        "kind": "direct",
+        "query": "villa prices in the Palmeraie neighborhood per m2",
+        "expected": [
+            "marrakech_comparable_listings"
+        ]
+    },
+    {
+        "id": "e-03",
+        "kind": "direct",
+        "query": "are the listing prices asking prices or confirmed sale prices",
+        "expected": [
+            "marrakech_comparable_listings"
+        ]
+    },
+    {
+        "id": "e-04",
+        "kind": "cross_lang",
+        "query": "prix médian au m2 des appartements à Marrakech",
+        "expected": [
+            "marrakech_comparable_listings"
+        ]
+    },
+    {
+        "id": "hn-03",
+        "kind": "negative",
+        "query": "luxury property prices in Dubai 2026",
+        "expected": []
+    },
+    {
+        "id": "hn-04",
+        "kind": "negative",
+        "query": "European Central Bank interest rate decision",
+        "expected": []
+    },
+    {
+        "id": "hn-05",
+        "kind": "negative",
+        "query": "tourist arrivals in Spain this summer",
+        "expected": []
+    },
+    {
+        "id": "hn-06",
+        "kind": "negative",
+        "query": "prix de l'immobilier à Paris en 2026",
+        "expected": []
+    },
+    {
+        "id": "hn-07",
+        "kind": "negative",
+        "query": "taux d'occupation des hôtels de luxe à Dubaï",
+        "expected": []
+    },
+    {
+        "id": "hn-08",
+        "kind": "negative",
+        "query": "impact de la crise financière de 2008 sur l'immobilier américain",
+        "expected": []
+    }
+]

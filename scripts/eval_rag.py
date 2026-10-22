@@ -219,6 +219,8 @@ def main() -> None:
     parser.add_argument("--variant", choices=["baseline", "alias"], default="baseline")
     parser.add_argument("--all", action="store_true", help="baseline and alias, on the golden set and the held-out set")
     parser.add_argument("--out", type=Path, default=None, help="also write the report to this UTF-8 file")
+    #22/10/2026
+    parser.add_argument("--extra", type=Path, action="append", default=[], help="another golden set to include (repeatable)")
     args = parser.parse_args()
 
     plain = lambda q, k: knowledge_base.retrieve(q, top_k=k)
@@ -228,6 +230,8 @@ def main() -> None:
         golden_sets = {"golden": load_cases(args.golden)}
         if HELDOUT_DEFAULT.exists():
             golden_sets["held-out"] = load_cases(HELDOUT_DEFAULT)
+        for extra in args.extra:
+            golden_sets[extra.stem] = load_cases(extra)
         runs = run_all(golden_sets, {"baseline": plain, "alias": expanded}, args.k)
         parts = [format_report(label, rows, args.k) for label, rows in runs]
         parts.append(compare_table([(label, summarize(rows)) for label, rows in runs]))

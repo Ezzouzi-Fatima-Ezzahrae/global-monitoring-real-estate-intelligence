@@ -52,9 +52,43 @@ recall@3=0.38  MRR=0.31  abstention=1.00  (positives=8, negatives=2)
   false hits: 0 (a miss that returned an unrelated chunk instead of nothing)
   recall by kind: cross_lang  0.38
 
+=== baseline / rag_golden_set_extra (k=3) ===
+MISS [negative] hn-03: 'luxury property prices in Dubai 2026'
+     expected=[] got=['market/marrakech_comparable_listings.md#Data source, method and limitations', 'real_estate_market_snapshot.md#Demoted — original pass, kept for the credibility contrast', 'macro_morocco.md#Growth and Inflation Forecasts']
+MISS [negative] hn-04: 'European Central Bank interest rate decision'
+     expected=[] got=['macro_morocco.md#Monetary Policy', 'real_estate_market_snapshot.md#Residential market — now backed by an institutional source', 'historical_precedents.md#Why this matters for the Judge / RAG retrieval']
+MISS [negative] hn-05: 'tourist arrivals in Spain this summer'
+     expected=[] got=['tourism_stats.md#Arrivals and growth, January-August 2026']
+MISS [negative] hn-06: "prix de l'immobilier à Paris en 2026"
+     expected=[] got=['real_estate_market_snapshot.md#Demoted — original pass, kept for the credibility contrast', 'macro_morocco.md#Growth and Inflation Forecasts', 'tourism_stats.md#Arrivals and growth, January-August 2026']
+MISS [negative] hn-08: "impact de la crise financière de 2008 sur l'immobilier améri"
+     expected=[] got=['historical_precedents.md#How recovery unfolded']
+recall@3=1.00  MRR=1.00  abstention=0.17  (positives=4, negatives=6)
+  false hits: 0 (a miss that returned an unrelated chunk instead of nothing)
+  recall by kind: cross_lang  1.00
+  recall by kind: direct      1.00
+
+=== alias / rag_golden_set_extra (k=3) ===
+MISS [negative] hn-03: 'luxury property prices in Dubai 2026'
+     expected=[] got=['market/marrakech_comparable_listings.md#Data source, method and limitations', 'real_estate_market_snapshot.md#Demoted — original pass, kept for the credibility contrast', 'macro_morocco.md#Growth and Inflation Forecasts']
+MISS [negative] hn-04: 'European Central Bank interest rate decision'
+     expected=[] got=['macro_morocco.md#Monetary Policy', 'real_estate_market_snapshot.md#Residential market — now backed by an institutional source', 'historical_precedents.md#Why this matters for the Judge / RAG retrieval']
+MISS [negative] hn-05: 'tourist arrivals in Spain this summer'
+     expected=[] got=['tourism_stats.md#Arrivals and growth, January-August 2026']
+MISS [negative] hn-06: "prix de l'immobilier à Paris en 2026"
+     expected=[] got=['real_estate_market_snapshot.md#Demoted — original pass, kept for the credibility contrast', 'market/marrakech_comparable_listings.md#Data source, method and limitations', 'historical_precedents.md#What happened']
+MISS [negative] hn-08: "impact de la crise financière de 2008 sur l'immobilier améri"
+     expected=[] got=['historical_precedents.md#How recovery unfolded', 'real_estate_market_snapshot.md#Demoted — original pass, kept for the credibility contrast', 'historical_precedents.md#What happened']
+recall@3=1.00  MRR=1.00  abstention=0.17  (positives=4, negatives=6)
+  false hits: 0 (a miss that returned an unrelated chunk instead of nothing)
+  recall by kind: cross_lang  1.00
+  recall by kind: direct      1.00
+
 | Run | recall@k | MRR | abstention | false hits |
 |---|---|---|---|---|
 | baseline / golden | 0.73 | 0.70 | 1.00 | 0 |
 | alias / golden | 1.00 | 1.00 | 1.00 | 0 |
 | baseline / held-out | 0.25 | 0.25 | 1.00 | 0 |
 | alias / held-out | 0.38 | 0.31 | 1.00 | 0 |
+| baseline / rag_golden_set_extra | 1.00 | 1.00 | 0.17 | 0 |
+| alias / rag_golden_set_extra | 1.00 | 1.00 | 0.17 | 0 |

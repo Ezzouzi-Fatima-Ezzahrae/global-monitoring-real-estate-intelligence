@@ -94,6 +94,8 @@ def main() -> None:
     parser.add_argument("--k", type=int, default=3)
     parser.add_argument("--sweep", action="store_true", help="semantic-only, thresholds 0.20..0.60, golden set")
     parser.add_argument("--out", type=Path, default=None)
+    #22/10/2026
+    parser.add_argument("--extra", type=Path, action="append", default=[], help="another golden set to include (repeatable)")
     args = parser.parse_args()
 
     chunks = kb.load_chunks()
@@ -107,6 +109,13 @@ def main() -> None:
     golden = {"golden": load_cases(GOLDEN_SET_DEFAULT)}
     if HELDOUT_DEFAULT.exists():
         golden["held-out"] = load_cases(HELDOUT_DEFAULT)
+        for extra in args.extra:
+            golden[extra.stem] = load_cases(extra)
+
+    if HELDOUT_DEFAULT.exists():
+        golden["held-out"] = load_cases(HELDOUT_DEFAULT)
+    for extra in args.extra:
+        golden[extra.stem] = load_cases(extra)
 
     if args.sweep:
         # Thresholds are chosen on the golden set only; the held-out set is for the final number.
