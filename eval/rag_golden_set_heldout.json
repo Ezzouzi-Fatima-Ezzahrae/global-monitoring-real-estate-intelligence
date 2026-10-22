@@ -1,0 +1,78 @@
+[
+    {
+        "id": "h-01",
+        "kind": "cross_lang",
+        "query": "nombre de visiteurs étrangers entre janvier et août",
+        "expected": [
+            "tourism_stats"
+        ]
+    },
+    {
+        "id": "h-02",
+        "kind": "cross_lang",
+        "query": "politique monétaire et prévisions d'inflation",
+        "expected": [
+            "macro_morocco"
+        ]
+    },
+    {
+        "id": "h-03",
+        "kind": "cross_lang",
+        "query": "reprise du marché immobilier après la crise sanitaire",
+        "expected": [
+            "historical_precedents"
+        ]
+    },
+    {
+        "id": "h-04",
+        "kind": "cross_lang",
+        "query": "projets hôteliers en construction et nombre de chambres",
+        "expected": [
+            "real_estate_market_snapshot"
+        ]
+    },
+    {
+        "id": "h-05",
+        "kind": "cross_lang",
+        "query": "rendements des locations de courte durée",
+        "expected": [
+            "real_estate_market_snapshot"
+        ]
+    },
+    {
+        "id": "h-06",
+        "kind": "cross_lang",
+        "query": "توقعات التضخم والنمو الاقتصادي",
+        "expected": [
+            "macro_morocco"
+        ]
+    },
+    {
+        "id": "h-07",
+        "kind": "cross_lang",
+        "query": "أثر الجائحة على المعاملات العقارية",
+        "expected": [
+            "historical_precedents"
+        ]
+    },
+    {
+        "id": "h-08",
+        "kind": "cross_lang",
+        "query": "السفر السياحي في فصل الصيف",
+        "expected": [
+            "tourism_stats"
+        ]
+    },
+    {
+        "id": "hn-01",
+        "kind": "negative",
+        "query": "résultats du championnat de football",
+        "expected": []
+    },
+    {
+        "id": "hn-02",
+        "kind": "negative",
+        "query": "recette traditionnelle de la pastilla",
+        "expected": []
+    }
+]
